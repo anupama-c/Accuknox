@@ -1,0 +1,21 @@
+from django.db import transaction
+from django.dispatch import Signal
+
+# Define a custom signal
+my_signal = Signal()
+
+# Define a receiver function
+def my_receiver(sender, **kwargs):
+    from django.db import connection
+    print("Receiver running.")
+    print(f"Transaction status in receiver: {connection.in_atomic_block}")
+
+# Connect the signal to the receiver
+my_signal.connect(my_receiver)
+
+# Trigger the signal within a transaction
+with transaction.atomic():
+    print("Transaction started.")
+    print(f"Transaction status before signal: {transaction.get_connection().in_atomic_block}")
+    my_signal.send(sender=None)
+    print("Transaction still active.")
